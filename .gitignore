@@ -404,6 +404,6 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 
-# Directory
+# Directory target for image previews
 app
 app/*
