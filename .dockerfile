@@ -25,7 +25,7 @@ WORKDIR /app
 COPY --from=build-env /app/out .
 
 # Expose port 80 for the application to listen on
-EXPOSE 80
+EXPOSE 88
 
 # Start the application
 ENTRYPOINT ["dotnet", "ISM_Redesing.dll"]
