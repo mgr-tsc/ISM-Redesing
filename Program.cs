@@ -1,8 +1,15 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using ISM_Redesign.Data;
+using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
+
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddDbContext<IsmDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("IsmDbContext")));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
