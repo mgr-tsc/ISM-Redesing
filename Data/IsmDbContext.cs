@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using ISM_Redesign.Models;
 
 namespace ISM_Redesign.Data
 {
@@ -9,5 +10,9 @@ namespace ISM_Redesign.Data
         {
 
         }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<Customer> Customers { get; set; }
     }
 }
+
