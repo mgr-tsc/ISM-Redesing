@@ -16,11 +16,15 @@ namespace YourNamespace.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly string? _jwtSecret;
+        private readonly string? _jwt_audience;
+        private readonly string? _jwt_issuer;
 
         public AuthenticationController(UserManager<IdentityUser> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _jwtSecret = configuration["JWT_SECRET"];
+            _jwt_audience = configuration["JWT_AUDIENCE"];
+            _jwt_issuer = configuration["JWT_ISSUER"];
             if (_jwtSecret == null || _jwtSecret.Length == 0)
             {
                 throw new ArgumentNullException("JWT_SECRET cannot be read from configuration -> (ENV variables)");
@@ -36,16 +40,24 @@ namespace YourNamespace.Controllers
                 ?? await _userManager.FindByEmailAsync(signInDTO.UsernameOrEmail);
             if (user != null && await _userManager.CheckPasswordAsync(user, signInDTO.Password))
             {
+                var roles = await _userManager.GetRolesAsync(user);
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    // Add other claims as needed
+                };
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(_jwtSecret);
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
-                    Subject = new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim(ClaimTypes.Name, user.UserName),
-                        // Add other claims as needed
-                    }),
-                    Expires = DateTime.UtcNow.AddDays(7),
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.UtcNow.AddHours(12),
+                    Audience = _jwt_audience,
+                    Issuer = _jwt_issuer,
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
                 var token = tokenHandler.CreateToken(tokenDescriptor);
