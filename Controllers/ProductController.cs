@@ -5,15 +5,23 @@ using ISM_Redesign.Models;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ISM_Redesing.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "User")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class ProductController : ControllerBase
     {
         private readonly List<Product> _products;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProductController"/> class.
+        /// </summary>
         public ProductController()
         {
             _products = new List<Product>
@@ -24,15 +32,20 @@ namespace ISM_Redesing.Controllers
                 };
         }
 
-        // GET: api/Product
-        [Produces(MediaTypeNames.Application.Json)]
+        /// <summary>
+        /// Gets all products.
+        /// </summary>
+        /// <returns>A list of all products.</returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> Get() => await Task.FromResult(_products.ToList());
 
-        // GET: api/Product/{id}
-        [Produces(MediaTypeNames.Application.Json)]
+        /// <summary>
+        /// Gets a product by ID.
+        /// </summary>
+        /// <param name="id">The ID of the product to retrieve.</param>
+        /// <returns>The product with the specified ID.</returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")]
@@ -48,9 +61,14 @@ namespace ISM_Redesing.Controllers
             return await Task.FromResult(product);
         }
 
-        // POST: api/Product
-        [Produces(MediaTypeNames.Application.Json)]
+        /// <summary>
+        /// Creates a new product.
+        /// </summary>
+        /// <param name="product">The product to create.</param>
+        /// <returns>The newly created product.</returns>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Product>> Post(Product product)
         {
             _products.Add(product);
@@ -58,8 +76,14 @@ namespace ISM_Redesing.Controllers
             return await Task.FromResult(CreatedAtAction(nameof(Get), new { id = product.ProductID }, product));
         }
 
-        // PUT: api/Product/{id}
-        [Produces(MediaTypeNames.Application.Json)]
+        /// <summary>
+        /// Updates an existing product.
+        /// </summary>
+        /// <param name="id">The ID of the product to update.</param>
+        /// <param name="product">The updated product.</param>
+        /// <returns>A response indicating success or failure.</returns>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, Product product)
         {
@@ -76,10 +100,14 @@ namespace ISM_Redesing.Controllers
             return await Task.FromResult(NoContent());
         }
 
-        // DELETE: api/Product/{id}
-        [Produces(MediaTypeNames.Application.Json)]
+        /// <summary>
+        /// Deletes a product by ID.
+        /// </summary>
+        /// <param name="id">The ID of the product to delete.</param>
+        /// <returns>A response indicating success or failure.</returns>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

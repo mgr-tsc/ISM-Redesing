@@ -4,11 +4,16 @@ using ISM_Redesing.DTO;
 using ISM_Redesing.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using System.Net.Mime;
 
 namespace ISM_Redesign.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize(Roles = "User")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class RegisterController : ControllerBase
     {
         private readonly UserManager<User>? _userManager;
@@ -20,7 +25,6 @@ namespace ISM_Redesign.Controllers
 
 
         [Authorize(Roles = "Admin")]
-        [HttpPost]
         /// <summary>
         /// Registers a new user in the system.
         /// </summary>
