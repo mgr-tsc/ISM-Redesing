@@ -3,7 +3,10 @@ using ISM_Redesign.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.Threading.Tasks;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<IsmDbContext>()
                 .AddDefaultTokenProviders();
 
+// Add JWT authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -40,6 +44,18 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT_SECRET"]))
     };
 });
+
+// Set password settings for account creation.
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = builder.Configuration["ASPNETCORE_ENVIRONMENT"] != "Development"; // Set require digits
+    options.Password.RequireLowercase = builder.Configuration["ASPNETCORE_ENVIRONMENT"] != "Development";
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = builder.Configuration["ASPNETCORE_ENVIRONMENT"] != "Development" ? 6 : 4; // Set minimum length
+    options.Password.RequiredUniqueChars = 0;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -53,4 +69,47 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+
+#region Startup
+
+// Create roles on startup
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var roles = new[] { "Admin", "User" };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            var newRole = new IdentityRole(role);
+            await roleManager.CreateAsync(newRole);
+        }
+    }
+}
+
+// Create admin user on startup
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    var adminUser = new IdentityUser
+    {
+        UserName = "marcoguevara",
+        Email = "marco1996guevara@gmail.com",
+    };
+    var result = await userManager.CreateAsync(adminUser, "juve");
+    if (result.Succeeded)
+    {
+        await userManager.AddToRoleAsync(adminUser, "Admin");
+        await userManager.AddToRoleAsync(adminUser, "User");
+    }
+    else
+    {
+        foreach (var error in result.Errors)
+        {
+            Console.WriteLine(error.Description);
+        }
+    }
+}
+#endregion
+
 app.Run();

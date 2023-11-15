@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ISM_Redesing.DTO;
 using ISM_Redesing.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ISM_Redesign.Controllers
 {
@@ -18,6 +19,7 @@ namespace ISM_Redesign.Controllers
         }
 
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         /// <summary>
         /// Registers a new user in the system.
@@ -41,6 +43,9 @@ namespace ISM_Redesign.Controllers
             if (_userManager == null) return BadRequest("User manager service not working");
             var result = await _userManager.CreateAsync(user, registerDTO.Password);
             if (!result.Succeeded) return BadRequest(result.Errors);
+            if (registerDTO.Role == "Admin")
+                await _userManager.AddToRoleAsync(user, "Admin"); // Add Admin role if the incoming role is Admin
+            await _userManager.AddToRoleAsync(user, "User"); // Add User role to all new users
             return Created("Registration successful.", new MessageResponse { Action = "Register new user", Message = "Registration successful" });
         }
 
