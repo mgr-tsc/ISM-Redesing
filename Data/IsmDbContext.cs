@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using ISM_Redesign.Models;
 using ISM_Redesing.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ISM_Redesign.Data
 {
-    public class IsmDbContext : DbContext
+    public class IsmDbContext : IdentityDbContext
     {
         public DbSet<Product> Products { get; set; }
         public DbSet<Customer> Customers { get; set; }
