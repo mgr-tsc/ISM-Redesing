@@ -11,7 +11,6 @@ namespace ISM_Redesign.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Expense> Expenses { get; set; }
-        public DbSet<User> Incomes { get; set; }
 
         public IsmDbContext(DbContextOptions<IsmDbContext> options) : base(options)
         {

@@ -1,14 +1,13 @@
-
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using ISM_Redesign.Models;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Net.Mime;
+using System.Threading.Tasks;
 
 namespace ISM_Redesing.Controllers
 {
-    [Produces(MediaTypeNames.Application.Json)]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
@@ -18,20 +17,26 @@ namespace ISM_Redesing.Controllers
         public ProductController()
         {
             _products = new List<Product>
-            {
-                new Product { ProductID = 1, Name = "Product 1", Description = "Description 1" },
-                new Product { ProductID = 2, Name = "Product 2", Description = "Description 2" },
-                new Product { ProductID = 3, Name = "Product 3", Description = "Description 3" },
-            };
+                {
+                    new Product { ProductID = 1, Name = "Product 1", Description = "Description 1" },
+                    new Product { ProductID = 2, Name = "Product 2", Description = "Description 2" },
+                    new Product { ProductID = 3, Name = "Product 3", Description = "Description 3" },
+                };
         }
 
         // GET: api/Product
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> Get() => _products.ToList();
+        public async Task<ActionResult<IEnumerable<Product>>> Get() => await Task.FromResult(_products.ToList());
 
-        // GET: api/Product/5
+        // GET: api/Product/{id}
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")]
-        public ActionResult<Product> Get(int id)
+        public async Task<ActionResult<Product>> Get(int id)
         {
             var product = _products.FirstOrDefault(p => p.ProductID == id);
 
@@ -40,23 +45,25 @@ namespace ISM_Redesing.Controllers
                 return NotFound();
             }
 
-            return product;
+            return await Task.FromResult(product);
         }
 
         // POST: api/Product
+        [Produces(MediaTypeNames.Application.Json)]
         [HttpPost]
-        public ActionResult<Product> Post(Product product)
+        public async Task<ActionResult<Product>> Post(Product product)
         {
             _products.Add(product);
 
-            return CreatedAtAction(nameof(Get), new { id = product.ProductID}, product);
+            return await Task.FromResult(CreatedAtAction(nameof(Get), new { id = product.ProductID }, product));
         }
 
-        // PUT: api/Product/5
+        // PUT: api/Product/{id}
+        [Produces(MediaTypeNames.Application.Json)]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, Product product)
+        public async Task<IActionResult> Put(int id, Product product)
         {
-            var existingProduct = _products.FirstOrDefault(p => p.ProductID== id);
+            var existingProduct = _products.FirstOrDefault(p => p.ProductID == id);
 
             if (existingProduct == null)
             {
@@ -66,12 +73,15 @@ namespace ISM_Redesing.Controllers
             existingProduct.Name = product.Name;
             existingProduct.Description = product.Description;
 
-            return NoContent();
+            return await Task.FromResult(NoContent());
         }
 
-        // DELETE: api/Product/5
+        // DELETE: api/Product/{id}
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var product = _products.FirstOrDefault(p => p.ProductID == id);
 
@@ -82,7 +92,7 @@ namespace ISM_Redesing.Controllers
 
             _products.Remove(product);
 
-            return NoContent();
+            return await Task.FromResult(NoContent());
         }
     }
 }
