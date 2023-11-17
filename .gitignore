@@ -406,3 +406,6 @@ ASALocalRun/
 .localhistory/
 
 .vscode/launch.json
+ism_dev.db
+ism_dev.db-shm
+ism_dev.db-wal

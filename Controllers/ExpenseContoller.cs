@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using ISM_Redesing.Models;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Authorization;
+using ISM_Redesign.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ISM_Redesign.Controllers
 {
@@ -17,14 +19,15 @@ namespace ISM_Redesign.Controllers
     public class ExpenseController : ControllerBase
     {
         private readonly List<Expense> _expenses;
-
-        public ExpenseController()
+        private readonly IsmDbContext _dbContext;
+        public ExpenseController(IsmDbContext dbContext)
         {
+            _dbContext = dbContext;
             _expenses = new List<Expense>
                         {
-                            new Expense { ExpenseID = 1, Description = "Expense 1", Amount = 100 },
-                            new Expense { ExpenseID = 2, Description = "Expense 2", Amount = 200 },
-                            new Expense { ExpenseID = 3, Description = "Expense 3", Amount = 300 }
+                            new Expense { ExpenseID = 1, Description = "Expense 1", Amount = 100, Category = "Fuel"},
+                            new Expense { ExpenseID = 2, Description = "Expense 2", Amount = 200, Category = "Fuel"},
+                            new Expense { ExpenseID = 3, Description = "Expense 3", Amount = 300, Category = "Salary"},
                         };
         }
 
@@ -38,7 +41,7 @@ namespace ISM_Redesign.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Expense>>> GetExpenses()
         {
-            return await Task.FromResult(_expenses.ToList());
+            return await _dbContext.Expenses.ToListAsync();
         }
 
         // Get /api/expense/{id}
@@ -73,9 +76,8 @@ namespace ISM_Redesign.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Expense>> PostExpense(Expense expense)
         {
-            expense.ExpenseID = _expenses.Count + 1;
-            _expenses.Add(expense);
-
+            _dbContext.Expenses.Add(expense);
+            await _dbContext.SaveChangesAsync();
             return await Task.FromResult(CreatedAtAction(nameof(GetExpense), new { id = expense.ExpenseID }, expense));
         }
 

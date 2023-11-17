@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Threading.Tasks;
 using System;
 using Microsoft.OpenApi.Models;
+using Microsoft.VisualBasic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Add DbContext
-builder.Services.AddDbContext<IsmDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("IsmDbContext")));
+builder.Services.AddDbContext<IsmDbContext>((options) =>
+    {
+        var env = builder.Configuration["ASPNETCORE_ENVIRONMENT"];
+        if (env == "Development")
+        {
+            options.UseSqlite(builder.Configuration.GetConnectionString("IsmDbContextSQLite"));
+        }
+        else
+        {
+            options.UseNpgsql(builder.Configuration.GetConnectionString("IsmDbContext"));
+        }
+    }
+);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
