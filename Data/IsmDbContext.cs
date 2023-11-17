@@ -24,7 +24,8 @@ namespace ISM_Redesign.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            ProductConfiguration.Configure(builder);
+            ProductTableConfiguration.Configure(builder);
+            ExpenseTableConfiguration.Configure(builder);
             base.OnModelCreating(builder);
         }
 

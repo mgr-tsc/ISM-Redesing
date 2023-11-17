@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ISM_Redesign.Models;
 namespace ISM_Redesign.Data
 {
-    public class ProductConfiguration
+    public class ProductTableConfiguration
     {
         public static void Configure(ModelBuilder modelBuilder)
         {
