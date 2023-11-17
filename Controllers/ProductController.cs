@@ -26,9 +26,9 @@ namespace ISM_Redesing.Controllers
         {
             _products = new List<Product>
                 {
-                    new Product { ProductID = 1, Name = "Product 1", Description = "Description 1" },
-                    new Product { ProductID = 2, Name = "Product 2", Description = "Description 2" },
-                    new Product { ProductID = 3, Name = "Product 3", Description = "Description 3" },
+                    new Product { ProductID = 1, Name = "Product 1", Description = "Description 1", Area = "Area Fria", QuantityInStock = 10, UnitMeasure = ProductUnitMeasure.Caja, StockUniqueID = "001"},
+                    new Product { ProductID = 2, Name = "Product 2", Description = "Description 2", Area = "Area Fria", QuantityInStock = 20, UnitMeasure = ProductUnitMeasure.Caja, StockUniqueID = "002"},
+                    new Product { ProductID = 3, Name = "Product 3", Description = "Description 3", Area = "Area Fria", QuantityInStock = 30, UnitMeasure = ProductUnitMeasure.Caja, StockUniqueID = "003"}
                 };
         }
 

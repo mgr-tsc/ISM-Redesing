@@ -22,6 +22,12 @@ namespace ISM_Redesign.Data
 
         }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            ProductConfiguration.Configure(builder);
+            base.OnModelCreating(builder);
+        }
+
         public static void InitializeDbTest(IApplicationBuilder applicationBuilder)
         {
             // code to thes integration with EF core goes here
