@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "Sqlite-local-development",
+            "database": "${workspaceFolder:ISM-Redesing}/ism_dev.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
